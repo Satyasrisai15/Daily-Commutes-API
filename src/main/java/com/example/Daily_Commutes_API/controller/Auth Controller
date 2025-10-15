@@ -1,0 +1,63 @@
+package com.example.Daily_Commutes_API.controller;
+
+import com.example.Daily_Commutes_API.dto.AuthResponse;
+import com.example.Daily_Commutes_API.dto.LoginRequest;
+import com.example.Daily_Commutes_API.dto.RegisterRequest;
+import com.example.Daily_Commutes_API.model.User;
+import com.example.Daily_Commutes_API.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/api/auth")
+@RequiredArgsConstructor
+public class AuthController {
+
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
+    // We will inject JwtService later
+
+    @PostMapping("/register")
+    public ResponseEntity<String> register(@RequestBody RegisterRequest registerRequest) {
+        if (userRepository.findByEmail(registerRequest.getEmail()).isPresent()) {
+            return ResponseEntity.badRequest().body("Error: Email is already in use!");
+        }
+
+        User user = new User();
+        user.setName(registerRequest.getName());
+        user.setEmail(registerRequest.getEmail());
+        user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
+        user.setPhoneNumber(registerRequest.getPhoneNumber());
+        user.setRole(registerRequest.getRole());
+
+        userRepository.save(user);
+        return ResponseEntity.ok("User registered successfully!");
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest loginRequest) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
+        );
+        // We will generate and return a token here
+        String token = "dummy-token"; // Placeholder
+        return ResponseEntity.ok(new AuthResponse(token));
+    }
+}
+```
+
+At this point, you've completed a huge chunk of work. You can run the app and use a tool like Postman to test the `/register` endpoint. You have successfully finished the main goal of Day 2!
+
+**Git Commit Point:**
+```bash
+git add .
+git commit -m "feat(security): implement user registration and basic security config"
