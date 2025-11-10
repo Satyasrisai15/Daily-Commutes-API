@@ -11,10 +11,12 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Entity
 @Table(name = "drivers")
+@NoArgsConstructor
 public class Driver {
 
     @Id
@@ -33,5 +35,8 @@ public class Driver {
 
     @OneToMany(mappedBy = "driver")
     private List<Ride> assignedRides;
-}
 
+    public Driver(User user) {
+        this.user = user;
+    }
+}
